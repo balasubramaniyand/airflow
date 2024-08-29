@@ -1,0 +1,10 @@
+FROM apache/airflow:2.10.0
+
+Run pip install apache-airflow-providers-postgres
+Run pip install apache-airflow-providers-mysql
+
+ENV AIRFLOW_HOME=/opt/airflow
+COPY dags/ $AIRFLOW_HOME/dags
+
+Run airflow db init
+
