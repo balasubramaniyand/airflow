@@ -1,0 +1,20 @@
+FROM apache/airflow:2.1.0
+
+# Install required Airflow providers
+RUN pip install apache-airflow-providers-postgres
+RUN pip install apache-airflow-providers-mysql
+
+# Add DAGs to the specified directory
+ADD ./dags /opt/airflow/dags
+
+# Add plugins to the specified directory
+ADD ./plugins /opt/airflow/plugins
+
+# Add the requirements file to the specified directory
+ADD ./requirements.txt /var/opt/
+
+# Upgrade pip and install the Python packages specified in requirements.txt
+RUN python3 -m pip install --upgrade pip && pip install -r /var/opt/requirements.txt
+
+# Initialize the Airflow database
+RUN airflow db init
