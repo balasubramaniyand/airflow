@@ -1,0 +1,50 @@
+root@opexwise-ui-demo:/opt/airf/airflow-etl# docker build -t airetl:0.0 .
+[+] Building 193.6s (12/13)                                                                                         docker:default
+ => [internal] load build definition from Dockerfile                                                                          0.1s
+ => => transferring dockerfile: 363B                                                                                          0.0s
+ => [internal] load metadata for docker.io/apache/airflow:2.1.0                                                               1.8s
+ => [auth] apache/airflow:pull token for registry-1.docker.io                                                                 0.0s
+ => [internal] load .dockerignore                                                                                             0.1s
+ => => transferring context: 2B                                                                                               0.0s
+ => CACHED [1/8] FROM docker.io/apache/airflow:2.1.0@sha256:3ec2b65d5eb31044a89d2451ece3061fa9b592ce4bfad7ac4f2f8fdc62fd683d  0.0s
+ => [internal] load build context                                                                                             0.3s
+ => => transferring context: 440B                                                                                             0.2s
+ => [2/8] RUN pip install apache-airflow-providers-postgres                                                                  72.2s
+ => [3/8] RUN pip install apache-airflow-providers-mysql                                                                     53.0s
+ => [4/8] ADD ./dags /opt/airflow/dags                                                                                        0.6s
+ => [5/8] ADD ./plugins /opt/airflow/plugins                                                                                  0.4s
+ => [6/8] ADD ./requirements.txt /var/opt/                                                                                    0.6s
+ => ERROR [7/8] RUN python3 -m pip install --upgrade pip && pip install -r requirements.txt                                  63.8s
+------
+ > [7/8] RUN python3 -m pip install --upgrade pip && pip install -r requirements.txt:
+14.96 Requirement already satisfied: pip in /home/airflow/.local/lib/python3.6/site-packages (21.3.1)
+63.11 ERROR: Could not open requirements file: [Errno 2] No such file or directory: 'requirements.txt'
+------
+Dockerfile:13
+--------------------
+  11 |     ADD ./requirements.txt /var/opt/
+  12 |
+  13 | >>> RUN python3 -m pip install --upgrade pip && pip install -r requirements.txt
+  14 |
+  15 |     RUN airflow db init
+--------------------
+ERROR: failed to solve: process "/bin/bash -o pipefail -o errexit -o nounset -o nolog -c python3 -m pip install --upgrade pip && pip install -r requirements.txt" did not complete successfully: exit code: 1
+root@opexwise-ui-demo:/opt/airf/airflow-etl# vi Dockerfile
+root@opexwise-ui-demo:/opt/airf/airflow-etl# cat Dockerfile
+FROM apache/airflow:2.1.0
+
+RUN pip install apache-airflow-providers-postgres
+RUN pip install apache-airflow-providers-mysql
+
+ADD ./dags /opt/airflow/dags
+
+ADD ./plugins /opt/airflow/plugins
+
+
+ADD ./requirements.txt /var/opt/
+
+RUN python3 -m pip install --upgrade pip && pip install -r requirements.txt
+
+RUN airflow db init
+
+root@opexwise-ui-demo:/opt/airf/airflow-etl#
